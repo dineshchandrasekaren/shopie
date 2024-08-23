@@ -1,12 +1,12 @@
-import React from "react";
+import { HTMLAttributes, DOMAttributes, FC } from "react";
 
 interface IButton
-  extends React.DOMAttributes<HTMLButtonElement>,
-    React.HTMLAttributes<HTMLButtonElement> {
+  extends DOMAttributes<HTMLButtonElement>,
+    HTMLAttributes<HTMLButtonElement> {
   outline?: boolean;
   loading?: boolean;
 }
-const Button: React.FC<IButton> = ({
+const Button: FC<IButton> = ({
   outline: isOutline = false,
   loading = false,
   className = "",
@@ -16,10 +16,10 @@ const Button: React.FC<IButton> = ({
   return (
     <button
       className={
-        `btn text-base ${
+        `btn text-base outline-none focus:outline-none min-w-24 overflow-hidden ${
           isOutline
-            ? " border-violet-700 border-2 text-violet-700 hover:bg-violet-700 hover:text-white"
-            : " bg-violet-700 text-white hover:bg-violet-500"
+            ? " border-violet-700 border-2 text-violet-700 hover:border-violet-700 hover:bg-violet-700 hover:text-white"
+            : " bg-violet-700 text-white border-none hover:bg-violet-500"
         } ` + className
       }
       {...props}

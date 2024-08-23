@@ -1,21 +1,17 @@
-import { useState } from "react";
-import Input from "../components/common/input.component";
+import { useDispatch } from "react-redux";
 import heroImage from "../assets/images/hero.jpg";
-import Modal from "../components/common/modal.component";
+import { AppDispatch } from "../store";
+import { openAuthModal } from "../store/slices/auth.slice";
 
 const HomePage = () => {
-  let [isOpen, setIsOpen] = useState(false);
-
-  function closeModal() {
-    setIsOpen(false);
-  }
+  const dispatch: AppDispatch = useDispatch();
 
   function openModal() {
-    setIsOpen(true);
+    dispatch(openAuthModal(true, "signup"));
   }
+
   return (
     <>
-      {" "}
       <div
         className="hero min-h-screen"
         style={{
@@ -36,24 +32,6 @@ const HomePage = () => {
             </button>
           </div>
         </div>
-      </div>
-      <div className="container">
-        <Modal show={isOpen} onClose={closeModal} title="Login">
-          <div className="w-full p-2">
-            <form className="rounded  pt-6 pb-8 ">
-              <div className="mb-6">
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Enter your username"
-                />
-              </div>
-              <div className="mb-6">
-                <Input id="email" type="email" placeholder="Enter your email" />
-              </div>
-            </form>
-          </div>
-        </Modal>
       </div>
     </>
   );

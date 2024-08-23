@@ -1,5 +1,5 @@
-import React from "react";
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+import { InputHTMLAttributes } from "react";
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string | undefined;
 }
 function Input({ error = undefined, className = "", ...props }: InputProps) {

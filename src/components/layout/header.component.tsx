@@ -1,11 +1,32 @@
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
+import { openAuthModal } from "../../store/slices/auth.slice";
+import AuthModal from "../auth/auth-modals.component";
+import SessionMaintain from "../../utilities/session-maintain.utils";
+import Logo from "../../assets/logo";
+
 function MenuItems() {
+  const dispatch: AppDispatch = useDispatch();
+
+  function openModal() {
+    dispatch(openAuthModal(true, "login"));
+  }
   return (
     <>
       <li>
-        <a>Login</a>
+        <a onClick={openModal}>Login</a>
       </li>
       <li>
-        <a>Signup</a>
+        <a
+          onClick={() => {
+            SessionMaintain.setSession("name", "dinesh");
+            SessionMaintain.setSession("age", "26");
+
+            console.log(SessionMaintain.getSession());
+          }}
+        >
+          Signup
+        </a>
       </li>
       <li className="hover:bg-transparent active:bg-transparent focus:bg-transparent">
         <label className="swap swap-rotate hover:bg-transparent active:bg-transparent focus:bg-transparent w-full">
@@ -41,56 +62,59 @@ function MenuItems() {
 
 function Header() {
   return (
-    <div className="navbar bg-base-100 shadow-md sticky top-0">
-      <div className="container">
-        <div className="flex-none ">
-          <div className="drawer md:hidden z-50">
-            <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-            <div className="drawer-content">
-              {/* Page content here */}
+    <>
+      <div className="navbar bg-base-100 shadow-md sticky top-0">
+        <div className="container">
+          <div className="flex-none ">
+            <div className="drawer md:hidden z-50">
+              <input id="my-drawer" type="checkbox" className="drawer-toggle" />
+              <div className="drawer-content">
+                {/* Page content here */}
 
-              <label
-                htmlFor="my-drawer"
-                className="btn btn-square btn-ghost drawer-button"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  className="inline-block h-5 w-5 stroke-current"
+                <label
+                  htmlFor="my-drawer"
+                  className="btn btn-square btn-ghost drawer-button"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  ></path>
-                </svg>
-              </label>
-            </div>
-            <div className="drawer-side">
-              <label
-                htmlFor="my-drawer"
-                aria-label="close sidebar"
-                className="drawer-overlay"
-              ></label>
-              <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-                {/* Sidebar content here */}
-                <MenuItems />
-              </ul>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    className="inline-block h-5 w-5 stroke-current"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 6h16M4 12h16M4 18h16"
+                    ></path>
+                  </svg>
+                </label>
+              </div>
+              <div className="drawer-side">
+                <label
+                  htmlFor="my-drawer"
+                  aria-label="close sidebar"
+                  className="drawer-overlay"
+                ></label>
+                <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
+                  {/* Sidebar content here */}
+                  <MenuItems />
+                </ul>
+              </div>
             </div>
           </div>
+          <div className="flex-1">
+            <a className="btn btn-ghost  pt-2 tracking-wider hover:bg-transparent ">
+              <Logo />
+            </a>
+          </div>
+          <ul className="menu menu-horizontal px-1 hidden md:flex items-center">
+            <MenuItems />
+          </ul>
         </div>
-        <div className="flex-1">
-          <a className="btn btn-ghost text-2xl tracking-wider text-violet-700 hover:bg-transparent logo">
-            Shopie
-          </a>
-        </div>
-        <ul className="menu menu-horizontal px-1 hidden md:flex items-center">
-          <MenuItems />
-        </ul>
       </div>
-    </div>
+      <AuthModal />
+    </>
   );
 }
 

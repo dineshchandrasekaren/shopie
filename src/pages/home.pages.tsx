@@ -1,11 +1,20 @@
 import { useDispatch } from "react-redux";
 import heroImage from "../assets/images/hero.jpg";
-import { AppDispatch } from "../store";
-import { openAuthModal } from "../store/slices/auth.slice";
+import { AppDispatch } from "../redux";
+import { openAuthModal } from "../redux/slices/auth.slice";
+import { useEffect } from "react";
+import useSession from "../hooks/useSession";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const dispatch: AppDispatch = useDispatch();
-
+  const { token, role } = useSession().getSession();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (token) {
+      navigate("/shop");
+    }
+  });
   function openModal() {
     dispatch(openAuthModal(true, "signup"));
   }

@@ -1,5 +1,6 @@
-import axios from "axios";
+import http from "axios";
+import envConfig from "../constants/env.constant";
 
-axios.defaults.baseURL = "http://localhost:3000";
+http.defaults.baseURL = envConfig.serverUrl;
 
-export default axios;
+export default http;

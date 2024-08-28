@@ -1,13 +1,11 @@
 import Header from "./components/layout/header.component";
-import HomePage from "./pages/home.pages";
+import AllRoutes from "./routes";
 
-function App() {
-  return (
-    <div>
-      <Header />
-      <HomePage />
-    </div>
-  );
-}
+const App = () => (
+  <>
+    <Header />
+    <AllRoutes />
+  </>
+);
 
 export default App;

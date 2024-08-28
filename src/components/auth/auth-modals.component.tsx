@@ -2,11 +2,12 @@ import { useDispatch, useSelector } from "react-redux";
 import InformationModal from "../common/information-modal.component";
 import Input from "../common/input.component";
 import Modal from "../common/modal.component";
-import { AppDispatch, RootState } from "../../store";
-import { openAuthModal } from "../../store/slices/auth.slice";
-import { closeAllModal } from "../../store/slices/common.slice";
-import { auth } from "../../api/auth.api";
+import { AppDispatch, RootState } from "../../redux";
+import { openAuthModal } from "../../redux/slices/auth.slice";
+import { closeAllModal } from "../../redux/slices/common.slice";
+import { auth } from "../../redux/thunk-action/auth.thunk-action";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface IUser {
   name: string;
@@ -22,6 +23,8 @@ const initialState = {
 };
 function AuthModal() {
   const [user, setUser] = useState<IUser>(initialState);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const navigate = useNavigate();
   const resetState = () => {
     setUser(() => ({
       name: "",
@@ -29,6 +32,7 @@ function AuthModal() {
       email: "",
       username: "",
     }));
+    setIsForgotPassword(() => false);
   };
   const { AlertModalMsg = "", SuccessModalMsg = "" } = useSelector(
     (state: RootState): any => state.commonReducer
@@ -48,23 +52,47 @@ function AuthModal() {
       email: getInputValue("email") || "",
       username: getInputValue("username") || "",
       name: getInputValue("name") || "",
-      password: getInputValue("password") || "",
+      password: getInputValue("password") || undefined,
     };
 
-    dispatch(auth({ ...payload, role: "shop" }));
+    dispatch(
+      auth({
+        ...payload,
+        role: "shop",
+        next: () => {
+          navigate("/shop");
+        },
+      })
+    );
     if (SuccessModalMsg) {
       resetState();
     }
   };
+
   const handleChange = ({
     target: { id = "", value = "" },
   }: React.ChangeEvent<HTMLInputElement>) => {
     setUser((prev) => ({ ...prev, [id]: value }));
   };
 
+  const forgotPasswordClick = () => {
+    setIsForgotPassword(true);
+    setUser((preV) => ({
+      username: "",
+      name: "",
+      password: "",
+      email: preV.email,
+    }));
+  };
+
   const getInputValue = (id: keyof IUser) => {
     return user[id] as string;
   };
+  const title = isForgotPassword ? "Forgot Password" : `Shop ${modalType}`;
+  const info =
+    modalType === "login"
+      ? `Please enter your ${isForgotPassword ? "Email" : "credential"}`
+      : "Your credential will send to your mail";
   return (
     <div className="container">
       <Modal
@@ -72,7 +100,7 @@ function AuthModal() {
         onClose={closeModal}
         onSave={handleSubmit}
         buttonLoading={status === "loading"}
-        title={`Shop ${modalType}`}
+        title={title}
       >
         <div className="w-full p-2">
           <p className="text-violet-700 font-semibold ml-1 text-base flex gap-2">
@@ -89,11 +117,7 @@ function AuthModal() {
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               ></path>
             </svg>
-            <span>
-              {modalType === "login"
-                ? "Please enter your credential"
-                : "Your credential will send to your mail"}
-            </span>
+            <span>{info}</span>
           </p>
           <form className="rounded  pt-6  ">
             {modalType === "signup" && (
@@ -130,8 +154,8 @@ function AuthModal() {
                 error={error["email"]}
               />
             </div>
-            {modalType === "login" && (
-              <div className="mb-6">
+            {modalType === "login" && !isForgotPassword && (
+              <>
                 <Input
                   id="password"
                   type="password"
@@ -140,7 +164,15 @@ function AuthModal() {
                   onChange={handleChange}
                   error={error["password"]}
                 />
-              </div>
+
+                <p
+                  className="font-bold text-violet-700 text-end mb-3 cursor-pointer -mt-4 pr-2"
+                  onClick={forgotPasswordClick}
+                >
+                  {" "}
+                  Forgot Password?
+                </p>
+              </>
             )}
           </form>
           {failure ? (

@@ -3,11 +3,14 @@ import InformationModal from "../common/information-modal.component";
 import Input from "../common/input.component";
 import Modal from "../common/modal.component";
 import { AppDispatch, RootState } from "../../redux";
-import { openAuthModal } from "../../redux/slices/auth.slice";
 import { closeAllModal } from "../../redux/slices/common.slice";
-import { auth } from "../../redux/thunk-action/auth.thunk-action";
+import { authAPIAction } from "../../redux/thunk-action/auth.thunk-action";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { AUTH_ROLES } from "../../constants/roles.constant";
+import { IAuthState } from "../../types/auth.type";
+import { Info, Alert } from "../../assets/Icons";
+import AuthActions from "../../redux/action/auth.action";
 
 interface IUser {
   name: string;
@@ -22,9 +25,8 @@ const initialState = {
   username: "",
 };
 function AuthModal() {
+  const { username = "" } = useParams();
   const [user, setUser] = useState<IUser>(initialState);
-  const [isForgotPassword, setIsForgotPassword] = useState(false);
-  const navigate = useNavigate();
   const resetState = () => {
     setUser(() => ({
       name: "",
@@ -32,38 +34,44 @@ function AuthModal() {
       email: "",
       username: "",
     }));
-    setIsForgotPassword(() => false);
   };
   const { AlertModalMsg = "", SuccessModalMsg = "" } = useSelector(
     (state: RootState): any => state.commonReducer
   );
-  const { status, authModal, error, failure, modalType } = useSelector(
-    (state: RootState): any => state.authReducer
-  );
+  const { status, authModal, errors, failure, modalType }: IAuthState =
+    useSelector((state: RootState): any => state.authReducer);
   const dispatch: AppDispatch = useDispatch();
   function closeModal() {
-    dispatch(openAuthModal(false));
+    dispatch(AuthActions.openAuthModal(false));
     dispatch(closeAllModal());
     resetState();
   }
+  // const next = ({ setup, user: { role } }: IAuthSuccessResponse) => {
+  //   console.log("Setup:", setup);
+  //   console.log("Role:", role);
+
+  //   if (setup) {
+  //     console.log("Navigating to shop-setup");
+  //     navigate("/shop-setup");
+  //     return;
+  //   }
+
+  //   console.log("Navigating to /" + role);
+  //   navigate("/" + role);
+  // };
 
   const handleSubmit = () => {
     const payload = {
-      email: getInputValue("email") || "",
-      username: getInputValue("username") || "",
-      name: getInputValue("name") || "",
+      email: getInputValue("email") || undefined,
+      username: getInputValue("username") || undefined,
+      name: getInputValue("name") || undefined,
       password: getInputValue("password") || undefined,
+      role: username ? AUTH_ROLES.USER : AUTH_ROLES.SHOP,
+      // next,
     };
 
-    dispatch(
-      auth({
-        ...payload,
-        role: "shop",
-        next: () => {
-          navigate("/shop");
-        },
-      })
-    );
+    dispatch(authAPIAction(payload));
+
     if (SuccessModalMsg) {
       resetState();
     }
@@ -76,7 +84,7 @@ function AuthModal() {
   };
 
   const forgotPasswordClick = () => {
-    setIsForgotPassword(true);
+    dispatch(AuthActions.updateModalType("forgotPassword"));
     setUser((preV) => ({
       username: "",
       name: "",
@@ -88,11 +96,19 @@ function AuthModal() {
   const getInputValue = (id: keyof IUser) => {
     return user[id] as string;
   };
-  const title = isForgotPassword ? "Forgot Password" : `Shop ${modalType}`;
+
+  const title =
+    modalType === "forgotPassword"
+      ? "Forgot Password"
+      : `${username ? "" : "Shop"} ${modalType}`;
+
   const info =
     modalType === "login"
-      ? `Please enter your ${isForgotPassword ? "Email" : "credential"}`
+      ? `Please enter your Credential`
+      : modalType === "forgotPassword"
+      ? "Please enter your Email"
       : "Your credential will send to your mail";
+
   return (
     <div className="container">
       <Modal
@@ -104,19 +120,7 @@ function AuthModal() {
       >
         <div className="w-full p-2">
           <p className="text-violet-700 font-semibold ml-1 text-base flex gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              className="h-6 w-6 shrink-0 stroke-current"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
+            <Info />
             <span>{info}</span>
           </p>
           <form className="rounded  pt-6  ">
@@ -129,7 +133,7 @@ function AuthModal() {
                     value={getInputValue("name")}
                     placeholder="Enter your Shop Name*"
                     onChange={handleChange}
-                    error={error["name"]}
+                    error={errors?.["name"]}
                   />
                 </div>
                 <div className="mb-6">
@@ -139,7 +143,7 @@ function AuthModal() {
                     value={getInputValue("username")}
                     placeholder="Enter your unique username*"
                     onChange={handleChange}
-                    error={error["username"]}
+                    error={errors?.["username"]}
                   />
                 </div>
               </>
@@ -151,10 +155,10 @@ function AuthModal() {
                 value={getInputValue("email")}
                 placeholder="Enter your email*"
                 onChange={handleChange}
-                error={error["email"]}
+                error={errors?.["email"]}
               />
             </div>
-            {modalType === "login" && !isForgotPassword && (
+            {modalType === "login" && (
               <>
                 <Input
                   id="password"
@@ -162,7 +166,7 @@ function AuthModal() {
                   value={getInputValue("password")}
                   placeholder="Enter your password*"
                   onChange={handleChange}
-                  error={error["password"]}
+                  error={errors?.["password"]}
                 />
 
                 <p
@@ -177,19 +181,7 @@ function AuthModal() {
           </form>
           {failure ? (
             <div role="alert" className="alert alert-error">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 shrink-0 stroke-current"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+              <Alert />
               <span>{failure}</span>
             </div>
           ) : (

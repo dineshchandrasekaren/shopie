@@ -1,4 +1,5 @@
 import { InputHTMLAttributes } from "react";
+import { Alert } from "../../assets/Icons";
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string | undefined;
 }
@@ -15,19 +16,7 @@ function Input({ error = undefined, className = "", ...props }: InputProps) {
           {...props}
         />
         {error && (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current mr-2 absolute right-1 text-red-600 bg-transparent "
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+          <Alert className="mr-2 absolute right-1 text-red-600 bg-transparent" />
         )}
       </div>
       <p className="text-red-600 mt-2 mb-8 font-semibold ml-1 text-base h-1">

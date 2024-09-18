@@ -1,15 +1,19 @@
 import { Link, useLocation } from "react-router-dom";
+import ToggleThemeCircle from "../components/common/toggle-theme-ball.component";
+import ExitBall from "../components/common/exit-ball.component";
 
 const NotFound = () => {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
   return (
-    <section className="min-h-full bg-base-100 dark:bg-gray-900 overflow-hidden">
+    <section className="min-h-full bg-base-100  dark:bg-gray-900 overflow-hidden">
+      <ToggleThemeCircle />
+      <ExitBall />
       <div className="container flex items-center px-6 py-12 mx-auto">
         <div
           className="flex flex-col items-center max-w-sm mx-auto text-center"
-          style={{ paddingTop: "8%" }}
+          style={{ paddingTop: "12%" }}
         >
           <div className="p-3 text-sm font-medium text-violet-500 rounded-full bg-violet-50 dark:bg-gray-800">
             <svg

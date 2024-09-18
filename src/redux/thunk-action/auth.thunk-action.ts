@@ -1,51 +1,54 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import http from "../../api";
-import { openSuccess } from "../slices/common.slice";
+import { openAlert, openSuccess } from "../slices/common.slice";
 import { RootState } from "..";
-import settings from "../../constants/api.constant";
 import ERROR_MESSAGES from "../../constants/error-message.constant";
 import { AuthAPIType, IAuthPayload } from "../../types/auth.type";
 import AuthApi from "../../api/auth.api";
-import { ICallback } from "../../types/common.type";
+import useSession from "../../hooks/useSession";
+import errorHandler from "../access-denied.handler";
 
-export const auth = createAsyncThunk(
+export const authAPIAction = createAsyncThunk(
   "auth/all",
-  async ({ next, ...payload }: IAuthPayload & ICallback, thunkAPI) => {
+  async (payload: IAuthPayload, { getState, dispatch, rejectWithValue }) => {
     try {
-      const store: RootState = thunkAPI.getState() as RootState;
-      const modalType = store.authReducer.modalType as AuthAPIType;
+      const modalType = (getState() as RootState).authReducer
+        .modalType as AuthAPIType;
+      const { data } = await AuthApi.authenticate(payload, modalType);
 
-      const response = await AuthApi.authenticate(payload, modalType);
-      const data = response.data;
       if (data.success) {
-        thunkAPI.dispatch(openSuccess(data.email));
-      }
-      if (modalType === "login") {
-        next();
-      }
-      return data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || ERROR_MESSAGES.FAILED.auth
-      );
-    }
-  }
-);
-export const forgotPassword = createAsyncThunk(
-  "auth/all",
-  async (payload: { email: string }, thunkAPI) => {
-    try {
-      const response = await AuthApi.authenticate(payload, "forgotPassword");
-      const data = response.data;
-      if (data.success) {
-        thunkAPI.dispatch(openSuccess(data.email));
+        if (data.email) {
+          dispatch(openSuccess(data.email));
+        } else if (modalType === "login") {
+          window.location.reload();
+        }
       }
 
       return data;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || ERROR_MESSAGES.FAILED.email
-      );
+      return rejectWithValue({
+        error: error.response?.data || ERROR_MESSAGES.FAILED.auth,
+      });
     }
   }
 );
+
+export const logout = createAsyncThunk("auth/exit", async (_, { dispatch }) => {
+  try {
+    const { data } = await AuthApi.authenticate();
+
+    if (!data.success) {
+      dispatch(openAlert(data.message));
+    } else {
+      useSession().clearSession(true);
+    }
+
+    return data;
+  } catch (error: any) {
+    errorHandler(
+      error.response.data.message === "Access denied" ||
+        error.response.data.message === "jwt expired"
+    );
+
+    dispatch(openAlert(error.response?.message || "Logout failed, try again"));
+  }
+});

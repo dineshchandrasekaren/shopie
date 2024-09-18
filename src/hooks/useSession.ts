@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import Cookies from "js-cookie";
 
 const useSession = () => {
@@ -8,11 +7,17 @@ const useSession = () => {
     return sessionCookie ? JSON.parse(sessionCookie) : {};
   };
 
-  // Set a session value
   const setSessionValue = (key: string, value: any) => {
     const sessionData = getSession();
     sessionData[key] = value;
-    Cookies.set("session", JSON.stringify(sessionData), { expires: 7 });
+
+    const expiryDate = new Date();
+    expiryDate.setTime(expiryDate.getTime() + 3 * 60 * 60 * 1000);
+
+    Cookies.set("session", JSON.stringify(sessionData), {
+      expires: expiryDate,
+      sameSite: "Strict",
+    });
   };
 
   // Get a specific session value by key
@@ -29,8 +34,11 @@ const useSession = () => {
   };
 
   // Clear the entire session
-  const clearSession = () => {
+  const clearSession = (reload?: true | undefined) => {
     Cookies.remove("session");
+    if (reload) {
+      window.location.reload();
+    }
   };
 
   return {

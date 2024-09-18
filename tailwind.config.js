@@ -1,21 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class',
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     container: {
       center: true,
     },
     extend: {},
   },
-  plugins: [
-    require('daisyui'),
-  ],
+  darkMode: "class",
+  plugins: [require("daisyui")],
   daisyui: {
-    themes: [ "dark", "cupcake"],
+    themes: ["dark", "cupcake"],
   },
-}
-
+};

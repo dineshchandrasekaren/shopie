@@ -1,4 +1,4 @@
-const { env } = import.meta;
+const env = import.meta.env;
 const envConfig = {
   serverUrl: env.VITE_SERVER_URL || "",
 };

@@ -1,39 +1,35 @@
-import { createAction, createSlice } from "@reduxjs/toolkit";
-import { auth, forgotPassword } from "../thunk-action/auth.thunk-action";
-import AuthExtraReducer from "../extra-reducer/auth.extra-reducer";
-
-export const openAuthModal = createAction(
-  "auth/openAuthModal",
-  (isOpen: boolean, type: string = "") => {
-    return {
-      payload: {
-        isOpen,
-        type,
-      },
-    };
-  }
-);
+import { createSlice } from "@reduxjs/toolkit";
+import { authAPIAction } from "../thunk-action/auth.thunk-action";
+import AuthActions from "../action/auth.action";
+import { IAuthState } from "../../types/auth.type";
+import {
+  authFailure,
+  authFulfill,
+  authModal,
+  authPending,
+  updateAuthModalType,
+} from "../extra-reducer/auth.extra-reducer";
+import initialState from "../initial-state";
+// const initialState: IAuthState = {
+//   status: "",
+//   failure: "",
+//   errors: {},
+//   authModal: false,
+//   modalType: "",
+//   isAuth: false,
+//   user: {},
+// };
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    status: "",
-    failure: "",
-    errors: {},
-    authModal: false,
-    modalType: "",
-    isAuth: false,
-    user: {},
-  },
+  initialState: initialState.authReducer as IAuthState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(openAuthModal, AuthExtraReducer.authModal)
-      .addCase(auth.pending, AuthExtraReducer.authPending)
-      .addCase(auth.fulfilled, AuthExtraReducer.authFulfill)
-      .addCase(auth.rejected, AuthExtraReducer.authFailure)
-      .addCase(forgotPassword.pending, AuthExtraReducer.forgotPasswordPending)
-      .addCase(forgotPassword.fulfilled, AuthExtraReducer.forgotPasswordFulfill)
-      .addCase(forgotPassword.rejected, AuthExtraReducer.forgotPasswordFailure);
+      .addCase(authAPIAction.pending, authPending)
+      .addCase(authAPIAction.fulfilled, authFulfill)
+      .addCase(authAPIAction.rejected, authFailure);
+    builder.addCase(AuthActions.openAuthModal, authModal);
+    builder.addCase(AuthActions.updateModalType, updateAuthModalType);
   },
 });
 

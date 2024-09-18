@@ -1,22 +1,29 @@
 import { useDispatch } from "react-redux";
 import heroImage from "../assets/images/hero.jpg";
 import { AppDispatch } from "../redux";
-import { openAuthModal } from "../redux/slices/auth.slice";
 import { useEffect } from "react";
-import useSession from "../hooks/useSession";
 import { useNavigate } from "react-router-dom";
+import AuthActions from "../redux/action/auth.action";
+import useAuth from "../hooks/useAuth";
 
 const HomePage = () => {
   const dispatch: AppDispatch = useDispatch();
-  const { token, role } = useSession().getSession();
+
   const navigate = useNavigate();
+  const {
+    isAuth,
+    user: { role },
+    setup,
+  } = useAuth();
+
   useEffect(() => {
-    if (token) {
-      navigate("/shop");
-    }
-  });
+    if (!isAuth || setup === undefined) return;
+
+    navigate(!setup ? `/${role}-setup` : `/${role}`);
+  }, []);
   function openModal() {
-    dispatch(openAuthModal(true, "signup"));
+    dispatch(AuthActions.updateModalType("signup"));
+    dispatch(AuthActions.openAuthModal(true));
   }
 
   return (

@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import initialState from "../initial-state";
 const commonSlice = createSlice({
   name: "common",
-  initialState: { AlertModalMsg: "", SuccessModalMsg: "" },
+  initialState: initialState.commonReducer,
   reducers: {
     openAlert(state, action: PayloadAction<string>) {
       state.AlertModalMsg = action.payload;

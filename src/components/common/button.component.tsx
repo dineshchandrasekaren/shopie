@@ -15,6 +15,7 @@ const Button: FC<IButton> = ({
 }) => {
   return (
     <button
+      disabled={loading}
       className={
         `btn text-base outline-none focus:outline-none min-w-24 overflow-hidden ${
           isOutline

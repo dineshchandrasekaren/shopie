@@ -3,7 +3,7 @@ import { RootState } from "../redux";
 import { IAuthState } from "../types/auth.type";
 import useSession from "./useSession";
 
-const useAuth = (): IAuthState => {
+const useAuth = (): IAuthState & { setup?: boolean } => {
   const { getSession } = useSession();
   const sessionData = getSession();
 
@@ -17,6 +17,7 @@ const useAuth = (): IAuthState => {
     return {
       isAuth: !!sessionData.token,
       user: { role: sessionData.role },
+      setup: sessionData.setup,
     };
   }
 
